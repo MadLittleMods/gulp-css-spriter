@@ -4,12 +4,15 @@
 
 You can easily exclude/include certain background image declarations using meta info in your styles([*see meta section below*](#meta-options)) and `includeMode` option([*see options section below*](#options)) depending on your use case.
 
-# About
+# Install
 
 ### Latest Version: 0.1
 
-`gulp-css-spriter` uses [spritesmith](https://www.npmjs.com/package/spritesmith) behind the scenes for creating the sprite sheet.
+`npm install gulp-css-spriter`
 
+# About
+
+`gulp-css-spriter` uses [spritesmith](https://www.npmjs.com/package/spritesmith) behind the scenes for creating the sprite sheet.
 
 # Usage
 
