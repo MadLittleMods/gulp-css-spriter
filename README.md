@@ -23,6 +23,9 @@ You can easily exclude/include certain background image declarations using meta 
 This is most likely the setup you will probably end up using.
 
 ```
+var gulp = require('gulp');
+var spriter = require('gulp-css-spriter');
+
 gulp.task('css', function() {
 	return gulp.src('./src/css/styles.css')
 		.pipe(spriter({
@@ -41,6 +44,9 @@ gulp.task('css', function() {
 The slimmest usage possible.
 
 ```
+var gulp = require('gulp');
+var spriter = require('gulp-css-spriter');
+
 gulp.task('css', function() {
 	return gulp.src('./styles.css')
 		.pipe(spriter())
@@ -48,6 +54,22 @@ gulp.task('css', function() {
 });
 ```
 
+## Minify CSS output usage
+
+If you want to use @meta data but are using a preprocessor such as SASS or LESS, you will need to use a output style that doesn't strip comments. After piping the CSS through `gulp-css-spriter`, you can then run it through a CSS minifier(separate plugin), such as [`gulp-minify-css`](https://www.npmjs.com/package/gulp-minify-css).
+
+```
+var gulp = require('gulp');
+var spriter = require('gulp-css-spriter');
+var minifyCSS = require('gulp-minify-css'); // https://www.npmjs.com/package/gulp-minify-css
+
+gulp.task('css', function() {
+	return gulp.src('./styles.css')
+		.pipe(spriter())
+		.pipe(minifyCSS())
+		.pipe(gulp.dest('./'));
+});
+```
 
 # Options
 
