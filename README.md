@@ -1,3 +1,5 @@
+[![npm version](https://badge.fury.io/js/gulp-css-spriter.svg)](http://badge.fury.io/js/gulp-css-spriter)
+
 # gulp-css-spriter
 
 `gulp-css-spriter` looks through the CSS you pipe in and gathers all of the background images. It then creates a sprite sheet and updates the references in the CSS.
@@ -6,7 +8,7 @@ You can easily exclude/include certain background image declarations using meta 
 
 # Install
 
-### Latest Version: 0.1.1
+### Latest Version: 0.2.0
 
 `npm install gulp-css-spriter`
 
