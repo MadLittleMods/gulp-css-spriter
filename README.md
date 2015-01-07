@@ -67,23 +67,23 @@ gulp.task('css', function() {
 
 
 
- # Meta info
+# Meta info
 
- `gulp-css-spriter` uses a JSON format to add info onto CSS declarations.
+`gulp-css-spriter` uses a JSON format to add info onto CSS declarations.
 
- ```
+```
 /* @meta {"spritesheet": {"include": false}} */
 background: url('../images/dummy-blue.png');
  ```
 
 The `@meta` comment data can be above or on the same line as the declaration for it to apply. Please note that if you are compiling from SASS/LESS and are not getting correct results, to check the outputted CSS and make sure the comments are still in tact and on the line you expect. For SASS, use multiline `/* */` comment syntax and put them above declarations. This is because gulp-sass/node-sass/libsass removes single line comments and puts mult-line comments that are on the same line as a declaration, below the declaraton.
 
- ```
+```
 /* @meta {"spritesheet": {"include": false}} */
 background: url('../images/dummy-blue.png'); /* @meta {"spritesheet": {"include": false}} */
  ```
 
 ## Meta options
 
-- `spritesheet`: object - hash of options that `gulp-css-spriter` will factor in
+ - `spritesheet`: object - hash of options that `gulp-css-spriter` will factor in
 	 - `include`: bool - determines whether or not the declaration should be included in the spritesheet
