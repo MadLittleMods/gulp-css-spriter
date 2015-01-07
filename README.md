@@ -56,7 +56,7 @@ gulp.task('css', function() {
 
 ## Minify CSS output usage
 
-If you want to use @meta data but are using a preprocessor such as SASS or LESS, you will need to use a output style that doesn't strip comments. After piping the CSS through `gulp-css-spriter`, you can then run it through a CSS minifier(separate plugin), such as [`gulp-minify-css`](https://www.npmjs.com/package/gulp-minify-css).
+If you want to use [@meta data](#meta-options) but are using a preprocessor such as SASS or LESS, you will need to use a output style that doesn't strip comments. After piping the CSS through `gulp-css-spriter`, you can then run it through a CSS minifier(separate plugin), such as [`gulp-minify-css`](https://www.npmjs.com/package/gulp-minify-css).
 
 ```
 var gulp = require('gulp');
