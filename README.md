@@ -2,9 +2,11 @@
 
 `gulp-css-spriter` looks through the CSS you pass it to gather all of the background images used. It then creates a sprite sheet and updates the references in the CSS.
 
-You can easily exclude/include certain background image declarations using meta info in your styles(see below) and `includeMode` option(see options section below).
+You can easily exclude/include certain background image declarations using meta info in your styles([*see meta section below*](#meta-options)) and `includeMode` option([*see options section below*](#options)).
 
 # About
+
+### Latest Version: 0.1
 
 `gulp-css-spriter` uses [spritesmith](https://www.npmjs.com/package/spritesmith) behind the scenes for creating the sprite sheet.
 
@@ -62,3 +64,26 @@ gulp.task('css', function() {
 	 	 	 - `result.properties`: Object with metadata about spritesheet {width, height}
 	 - `spritesmithOptions`: object - Any option you pass in here, will be passed through to spritesmith. [See spritesmith options documenation](https://www.npmjs.com/package/spritesmith#-spritesmith-params-callback-)
 	 	 - Default: {}
+
+
+
+ # Meta info
+
+ `gulp-css-spriter` uses a JSON format to add info onto CSS declarations.
+
+ ```
+/* @meta {"spritesheet": {"include": false}} */
+background: url('../images/dummy-blue.png');
+ ```
+
+The `@meta` comment data can be above or on the same line as the declaration for it to apply. Please note that if you are compiling from SASS/LESS and are not getting correct results, to check the outputted CSS and make sure the comments are still in tact and on the line you expect. For SASS, use multiline `/* */` comment syntax and put them above declarations. This is because gulp-sass/node-sass/libsass removes single line comments and puts mult-line comments that are on the same line as a declaration, below the declaraton.
+
+ ```
+/* @meta {"spritesheet": {"include": false}} */
+background: url('../images/dummy-blue.png'); /* @meta {"spritesheet": {"include": false}} */
+ ```
+
+## Meta options
+
+- `spritesheet`: object - hash of options that `gulp-css-spriter` will factor in
+	 - `include`: bool - determines whether or not the declaration should be included in the spritesheet
