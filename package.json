@@ -1,7 +1,7 @@
 {
   "name": "gulp-css-spriter",
   "version": "0.1.0",
-  "description": "Sprite Generation from CSS source files. The best and different approach to sprite sheets.",
+  "description": "Sprite Sheet Generation from CSS source files. The best and different approach to sprite sheets.",
   "author": "Eric Eastwood <contact@ericeastwood.com> (http://ericeastwood.com/)",
   "repository": {
     "type": "git",
