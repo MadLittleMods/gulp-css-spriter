@@ -1,7 +1,8 @@
 {
-  "name": "gulp-css-image-spriter",
-  "version": "1.0.0",
-  "description": "",
+  "name": "gulp-css-spriter",
+  "version": "0.1.0",
+  "description": "Sprite Generation from CSS source files. The best and different approach to sprite sheets.",
+  "author": "Eric Eastwood <contact@ericeastwood.com> (http://ericeastwood.com/)",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
