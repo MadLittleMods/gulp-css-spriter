@@ -57,16 +57,16 @@ gulp.task('css', function() {
  	 	 - If left default at `implicit`, all images will be included in the spritesheet; except for image declarations with meta `include` as `false`: `/* @meta {"spritesheet": {"include": false}} */`
  	 - `spriteSheet`: string - The path and file name of where we will save the sprite sheet
  	 	 - Default: 'spritesheet.png'
-	 - `pathToSpriteSheetFromCSS`: string - Because we don't know where you will end up saving the CSS file at this point in the pipe, we need a litle help identifying where it will be. We will use this as the reference to the sprite sheet image in the CSS piped in.
-	 	 - Default: 'spritesheet.png'
-	 - `spriteSheetBuildCallback`: function - Same as the [spritesmith callback](https://www.npmjs.com/package/spritesmith#-spritesmith-params-callback-)
-	 	 - Default: null
-	 	 - Callback has a parameters as so: `function(err, result)`
-	 	 	 - `result.image`: Binary string representation of image
-	 	 	 - `result.coordinates`: Object mapping filename to {x, y, width, height} of image
-	 	 	 - `result.properties`: Object with metadata about spritesheet {width, height}
-	 - `spritesmithOptions`: object - Any option you pass in here, will be passed through to spritesmith. [See spritesmith options documenation](https://www.npmjs.com/package/spritesmith#-spritesmith-params-callback-)
-	 	 - Default: {}
+ 	 - `pathToSpriteSheetFromCSS`: string - Because we don't know where you will end up saving the CSS file at this point in the pipe, we need a litle help identifying where it will be. We will use this as the reference to the sprite sheet image in the CSS piped in.
+ 	 	 - Default: 'spritesheet.png'
+ 	 - `spriteSheetBuildCallback`: function - Same as the [spritesmith callback](https://www.npmjs.com/package/spritesmith#-spritesmith-params-callback-)
+ 	 	 - Default: null
+ 	 	 - Callback has a parameters as so: `function(err, result)`
+ 	 	 	 - `result.image`: Binary string representation of image
+ 	 	 	 - `result.coordinates`: Object mapping filename to {x, y, width, height} of image
+ 	 	 	 - `result.properties`: Object with metadata about spritesheet {width, height}
+ 	 - `spritesmithOptions`: object - Any option you pass in here, will be passed through to spritesmith. [See spritesmith options documenation](https://www.npmjs.com/package/spritesmith#-spritesmith-params-callback-)
+ 	 	 - Default: {}
 
 
 
@@ -91,4 +91,4 @@ background: url('../images/dummy-blue.png'); /* @meta {"spritesheet": {"include"
 ## Meta options
 
  - `spritesheet`: object - hash of options that `gulp-css-spriter` will factor in
-	 - `include`: bool - determines whether or not the declaration should be included in the spritesheet. This can be left undefined if the `includeMode` is 'implicit'
+ 	 - `include`: bool - determines whether or not the declaration should be included in the spritesheet. This can be left undefined if the `includeMode` is 'implicit'
