@@ -2,7 +2,7 @@
 
 # gulp-css-spriter
 
-`gulp-css-spriter` looks through the CSS you pipe in and gathers all of the background images. It then creates a sprite sheet and updates the references in the CSS.
+`gulp-css-spriter`, a [gulp](http://gulpjs.com/) plugin, looks through the CSS you pipe in and gathers all of the background images. It then creates a sprite sheet and updates the references in the CSS.
 
 You can easily exclude/include certain background image declarations using meta info in your styles([*see meta section below*](#meta-options)) and `includeMode` option([*see options section below*](#options)) depending on your use case.
 
