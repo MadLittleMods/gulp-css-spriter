@@ -8,7 +8,7 @@ You can easily exclude/include certain background image declarations using meta 
 
 # Install
 
-### Latest Version: 0.2.2
+### Latest Version: 0.2.3
 
 `npm install gulp-css-spriter`
 
@@ -92,6 +92,12 @@ gulp.task('css', function() {
  	 - `spritesmithOptions`: object - Any option you pass in here, will be passed through to spritesmith. [See spritesmith options documenation](https://www.npmjs.com/package/spritesmith#-spritesmith-params-callback-)
  	 	 - Default: {}
 
+
+# What we emit
+
+`gulp-css-spriter` emits the transformed CSS with updated image references to the sprite sheet as a normal Gulp [vinyl file](https://www.npmjs.com/package/vinyl).
+
+We also attach the binary sprite sheet image in `chunk.spriteSheet` in case you want to consume it later down the pipe.
 
 
 # Meta info
