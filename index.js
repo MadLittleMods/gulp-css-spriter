@@ -1,4 +1,8 @@
-
+// gulp-css-spriter: https://www.npmjs.com/package/gulp-css-spriter
+// Sprite Sheet Generation from CSS source files.
+//
+// By: Eric Eastwood: EricEastwood.com
+//
 // Meta info looks like: `/* @meta {"spritesheet": {"include": false}} */`
 
 var fs = require('fs-extra');
@@ -130,7 +134,8 @@ var spriter = function(options) {
 		spritesmith(spritesmithOptions, function handleResult(err, result) {
 
 			if (err) {
-				self.emit('error', new gutil.PluginError(PLUGIN_NAME, 'Error creating sprite sheet image:', err));
+				err.message = 'Error creating sprite sheet image:\n' + err.message;
+				self.emit('error', new gutil.PluginError(PLUGIN_NAME, err));
 			}
 
 			var whenImageDealtWithPromise = new Promise(function(resolve, reject) {
@@ -138,7 +143,8 @@ var spriter = function(options) {
 				if(settings.spriteSheet) {
 					outputFile(settings.spriteSheet, result.image, 'binary').then(function(err) {
 						if(err) {
-							self.emit('error', new gutil.PluginError(PLUGIN_NAME, 'Spritesheet failed to save:', err));
+							err.message = 'Spritesheet failed to save:\n' + err.message;
+							self.emit('error', new gutil.PluginError(PLUGIN_NAME, err));
 						} else {
 							//console.log("The file was saved!");
 
