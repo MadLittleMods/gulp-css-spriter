@@ -3,6 +3,10 @@
 
 var fs = require('fs-extra');
 var path = require('path');
+
+var Promise = require('promise');
+var outputFile = Promise.denodeify(fs.outputFile);
+
 var through = require('through2'); // https://www.npmjs.org/package/through2
 var extend = require('extend'); // https://www.npmjs.org/package/extend
 var gutil = require('gulp-util'); // https://www.npmjs.org/package/gulp-util
@@ -63,7 +67,7 @@ var spriter = function(options) {
 
 
 		if (chunk.isStream()) {
-			throw new gutil.PluginError(PLUGIN_NAME, 'Cannot operate on stream');
+			self.emit('error', new gutil.PluginError(PLUGIN_NAME, 'Cannot operate on stream'));
 		}
 		else if (chunk.isBuffer()) {
 			var contents = String(chunk.contents);
@@ -78,7 +82,7 @@ var spriter = function(options) {
 			chunkBackgroundImageDeclarations = chunkBackgroundImageDeclarations.filter(function(declaration) {
 				var metaIncludeValue = (declaration.meta && declaration.meta.spritesheet && declaration.meta.spritesheet.include);
 				var shouldIncludeBecauseImplicit = settings.includeMode == 'implicit' && (metaIncludeValue === undefined || metaIncludeValue);
-				var shouldIncludeBecauseExplicit = settings.includeMode == 'explicit' && metaIncludeValue !== undefined && metaIncludeValue;
+				var shouldIncludeBecauseExplicit = settings.includeMode == 'explicit' && metaIncludeValue;
 				var shouldInclude = shouldIncludeBecauseImplicit || shouldIncludeBecauseExplicit;
 
 				// Only return declartions that shouldn't be skipped
@@ -125,36 +129,51 @@ var spriter = function(options) {
 		var spritesmithOptions = extend({}, settings.spritesmithOptions, { src: Object.keys(imageList) });
 		spritesmith(spritesmithOptions, function handleResult(err, result) {
 
-			// If there was an error, throw it
 			if (err) {
-				throw new gutil.PluginError(PLUGIN_NAME, 'Error creating sprite sheet image:', err);
+				self.emit('error', new gutil.PluginError(PLUGIN_NAME, 'Error creating sprite sheet image:', err));
 			}
 
-			// Save out the spritesheet image
-			if(settings.spriteSheet) {
-				fs.outputFile(settings.spriteSheet, result.image, 'binary', function(err) {
-					if(err) {
-						throw new gutil.PluginError(PLUGIN_NAME, 'Spritesheet failed to save:', err);
-					} else {
-						//console.log("The file was saved!");
+			var whenImageDealtWithPromise = new Promise(function(resolve, reject) {
+				// Save out the spritesheet image
+				if(settings.spriteSheet) {
+					outputFile(settings.spriteSheet, result.image, 'binary').then(function(err) {
+						if(err) {
+							self.emit('error', new gutil.PluginError(PLUGIN_NAME, 'Spritesheet failed to save:', err));
+						} else {
+							//console.log("The file was saved!");
 
-						// Push all of the chunks back on the pipe
-						var transformedChunkDataList = transformChunksWithSpriteSheetData(chunkDataList, result.coordinates, settings.pathToSpriteSheetFromCSS);
-						transformedChunkDataList.forEach(function(chunkData) {
-							self.push(chunkData.vinylFile);
-						});
+							// Push all of the chunks back on the pipe
+							var transformedChunkDataList = transformChunksWithSpriteSheetData(chunkDataList, result.coordinates, settings.pathToSpriteSheetFromCSS);
+							transformedChunkDataList.forEach(function(chunkData) {
+								var transformedChunk = chunkData.vinylFile;
+
+								// Attach the spritesheet in case someone wants to use it down the pipe
+								transformedChunk.spritesheet = result.image;
+
+								self.push(transformedChunk);
+							});
 
 
-						// Call a callback from the settings the user can hook onto
-						if(settings.spriteSheetBuildCallback) {
-							settings.spriteSheetBuildCallback(err, result);
+							// Call a callback from the settings the user can hook onto
+							if(settings.spriteSheetBuildCallback) {
+								settings.spriteSheetBuildCallback(err, result);
+							}
+
 						}
 
-						// "call callback when the flush operation is complete."
-						cb();
-					}
-				});
-			}
+					}).done(function() {
+						resolve();
+					});
+				}
+				else {
+					resolve();
+				}
+			});
+
+			whenImageDealtWithPromise.done(function() {
+				// "call callback when the flush operation is complete."
+				cb();
+			});
 
 			
 		});
