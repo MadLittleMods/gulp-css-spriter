@@ -56,7 +56,7 @@ gulp.task('css', function() {
 
 ## Minify CSS output usage
 
-If you want to use [@meta data](#meta-options) but are using a preprocessor such as SASS or LESS, you will need to use a output style that doesn't strip comments. After piping the CSS through `gulp-css-spriter`, you can then run it through a CSS minifier(separate plugin), such as [`gulp-minify-css`](https://www.npmjs.com/package/gulp-minify-css).
+If you want to use [@meta data](#meta-options) but are using a preprocessor such as Sass or Less, you will need to use a output style that doesn't strip comments. After piping the CSS through `gulp-css-spriter`, you can then run it through a CSS minifier(separate plugin), such as [`gulp-minify-css`](https://www.npmjs.com/package/gulp-minify-css).
 
 ```
 var gulp = require('gulp');
@@ -110,7 +110,7 @@ The example below will exclude this declaration from the spritesheet.
 background: url('../images/dummy-blue.png');
  ```
 
-Please note that if you are compiling from SASS/LESS and are not getting correct results, to check the outputted CSS and make sure the comments are still in tact and on the line you expect. For SASS, use multiline `/* */` comment syntax and put them above declarations. This is because gulp-sass/node-sass/libsass removes single line comments and puts mult-line comments that are on the same line as a declaration, below the declaraton.
+Please note that if you are compiling from Sass/Less and are not getting correct results, to check the outputted CSS and make sure the comments are still in tact and on the line you expect. For Sass, use multiline `/* */` comment syntax and put them above declarations. This is because gulp-sass/node-sass/libsass removes single line comments and puts mult-line comments that are on the same line as a declaration, below the declaraton.
 
 The `@meta` comment data can be above or on the same line as the declaration for it to apply.
 ```
