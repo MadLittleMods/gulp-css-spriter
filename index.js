@@ -85,8 +85,8 @@ var spriter = function(options) {
 			// Filter out any declartion with the `include: false` meta
 			chunkBackgroundImageDeclarations = chunkBackgroundImageDeclarations.filter(function(declaration) {
 				var metaIncludeValue = (declaration.meta && declaration.meta.spritesheet && declaration.meta.spritesheet.include);
-				var shouldIncludeBecauseImplicit = settings.includeMode == 'implicit' && (metaIncludeValue === undefined || metaIncludeValue);
-				var shouldIncludeBecauseExplicit = settings.includeMode == 'explicit' && metaIncludeValue;
+				var shouldIncludeBecauseImplicit = settings.includeMode === 'implicit' && (metaIncludeValue === undefined || metaIncludeValue);
+				var shouldIncludeBecauseExplicit = settings.includeMode === 'explicit' && metaIncludeValue;
 				var shouldInclude = shouldIncludeBecauseImplicit || shouldIncludeBecauseExplicit;
 
 				// Only return declartions that shouldn't be skipped
