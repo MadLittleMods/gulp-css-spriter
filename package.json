@@ -21,7 +21,7 @@
   "license": "MIT",
   "bugs": "https://github.com/MadLittleMods/gulp-css-spriter/issues",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "dependencies": {
     "bluebird": "^2.9.3",

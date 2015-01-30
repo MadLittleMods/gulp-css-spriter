@@ -144,3 +144,16 @@ We emit log messages such as when a image defined in the CSS can't be found on d
 ### `.on('error', function(err) { })`
 
 A normal gulp error. There are a variety of errors. See source code for more details.
+
+
+
+# Testing
+
+We have a series of unit tests. We use [Mocha](http://mochajs.org/).
+
+Install Mocha globally:
+```
+npm install -g mocha
+```
+
+Run tests with: `mocha` or `npm test`
