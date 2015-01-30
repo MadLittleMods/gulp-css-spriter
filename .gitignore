@@ -5,3 +5,8 @@ node_modules
 
 # Users Environment Variables
 .lock-wscript
+
+
+todo.md
+# Ignore the spritesheet that gets generated from running tests, etc
+spritesheet.png

@@ -8,7 +8,7 @@ You can easily exclude/include certain background image declarations using meta 
 
 # Install
 
-### Latest Version: 0.2.4
+### Latest Version: 0.3.0
 
 `npm install gulp-css-spriter`
 
@@ -89,6 +89,10 @@ gulp.task('css', function() {
  	 	 	 - `result.image`: Binary string representation of image
  	 	 	 - `result.coordinates`: Object mapping filename to {x, y, width, height} of image
  	 	 	 - `result.properties`: Object with metadata about spritesheet {width, height}
+ 	 - `silent`: bool - We ignore any images that are not found but are supposed to be sprited by default
+ 	 	 - Default: true
+ 	 - `shouldVerifyImagesExist`: bool - Check to make sure each image declared in the CSS exists before passing it to the spriter. Although silenced by default(`options.silent`), if an image is not found, an error is thrown.
+ 	 	 - Default: true
  	 - `spritesmithOptions`: object - Any option you pass in here, will be passed through to spritesmith. [See spritesmith options documenation](https://www.npmjs.com/package/spritesmith#-spritesmith-params-callback-)
  	 	 - Default: {}
 
@@ -122,3 +126,21 @@ background: url('../images/dummy-blue.png'); /* @meta {"spritesheet": {"include"
 
  - `spritesheet`: object - hash of options that `gulp-css-spriter` will factor in
  	 - `include`: bool - determines whether or not the declaration should be included in the spritesheet. This can be left undefined if the `includeMode` is 'implicit'
+
+
+
+# What we emit
+
+`gulp-css-spriter` transforms your CSS image paths to the spritesheet appropriately then emits the CSS as a normal Gulp [vinyl file](https://www.npmjs.com/package/vinyl).
+
+ - Gulp [vinyl file](https://www.npmjs.com/package/vinyl). We emit the CSS you passed in with transformed image paths
+
+## Events
+
+### `.on('log', function(message) { })`
+
+We emit log messages such as when a image defined in the CSS can't be found on disk.
+
+### `.on('error', function(err) { })`
+
+A normal gulp error. There are a variety of errors. See source code for more details.
