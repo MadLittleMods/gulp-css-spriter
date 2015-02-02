@@ -1,6 +1,6 @@
 {
   "name": "gulp-css-spriter",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Sprite Sheet Generation from CSS source files. The best and different approach to sprite sheets.",
   "main": "index.js",
   "repository": {

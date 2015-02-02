@@ -212,7 +212,7 @@ var spriter = function(options) {
 				var whenImageDealtWithPromise = new Promise(function(resolve, reject) {
 					// Save out the spritesheet image
 					if(settings.spriteSheet) {
-						outputFile(settings.spriteSheet, result.image, 'binary').then(function() {
+						var spriteSheetSavedPromise = outputFile(settings.spriteSheet, result.image, 'binary').then(function() {
 							
 							//console.log("The file was saved!");
 
@@ -225,7 +225,7 @@ var spriter = function(options) {
 									transformedChunk = transformFileWithSpriteSheetData(transformedChunk, result.coordinates, settings.pathToSpriteSheetFromCSS, settings.includeMode, settings.silent, settings.outputIndent);
 								}
 								catch(err) {
-									err.message = 'Something went wrong when parsing the CSS: ' + err.message;
+									err.message = 'Something went wrong when transforming chunks: ' + err.message;
 									self.emit('log', err.message);
 
 									// Emit an error if necessary
@@ -245,15 +245,20 @@ var spriter = function(options) {
 							});
 
 
+						}, function() {
+							settings.spriteSheetBuildCallback(err, null);
+							reject(err);
+						});
+
+
+						spriteSheetSavedPromise.finally(function() {
+
 							// Call a callback from the settings the user can hook onto
 							if(settings.spriteSheetBuildCallback) {
 								settings.spriteSheetBuildCallback(null, result);
 							}
 
-
-						}, function() {
-							settings.spriteSheetBuildCallback(err, null);
-							reject(err);
+							resolve();
 						});
 					}
 					else {
@@ -261,7 +266,7 @@ var spriter = function(options) {
 					}
 				});
 
-				whenImageDealtWithPromise.settle(function() {
+				whenImageDealtWithPromise.finally(function() {
 					// "call callback when the flush operation is complete."
 					cb();
 				});
