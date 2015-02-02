@@ -22,58 +22,44 @@ var spriter = require('../');
 
 // Test out some individual components
 var getBackgroundImageDeclarations = require('../lib/get-background-image-declarations');
+var transformMap = require('../lib/transform-map');
 
 
 
 
 
 describe('gulp-css-spriter', function() {
-	it('should emit a buffer', function(done) {
-		var spriterPromise = spriterTest({});
-
-		mochaPromiseTest(spriterPromise, done, function(result) {
-			// make sure it came out the same way it went in
-			expect(result.isBuffer()).to.equal(true);
+	it('should emit a buffer', function() {
+		var spriterPromise = spriterTest({}).then(function(result) {
+			return result.isBuffer();
 		});
+
+		return expect(spriterPromise).to.eventually.equal(true);
 	});
 
-	it('should work with minified css', function(done) {
-		var spriterPromise = spriteSheetBuildCallbackResultTest({
-			'includeMode': 'implicit'
-		}, 'test/test-css/background.min.css');
-
-		mochaPromiseTest(spriterPromise, done, function(result) {
-			expect((Object.keys((result || {}).coordinates) || []).length).to.equal(2);
-		});
+	it('should work with minified css', function() {
+		return compareSpriterResultsToExpected('test/test-css/background.min.css', 'test/test-css/expected/background.min.css');
 	});
 
-	it('should not try to sprite external images', function(done) {
-		var spriterPromise = spriteSheetBuildCallbackResultTest({}, 'test/test-css/external-image.css');
+	it('should not try to sprite external images', function() {
+		return compareSpriterResultsToExpected('test/test-css/external-image.css', 'test/test-css/expected/external-image.css');
+	});
 
-		mochaPromiseTest(spriterPromise, done, function(result) {
-			expect((Object.keys((result || {}).coordinates) || []).length).to.equal(0);
-		});
+	it('should sprite properly when the same image source is used in multiple declarations. And one of the declarations is excluded via meta data', function() {
+		return compareSpriterResultsToExpected('test/test-css/multiple-declarations-same-image.css', 'test/test-css/expected/multiple-declarations-same-image.css');
 	});
 
 	// All declarations will be included except those with explcit `includeMode` false meta data
-	it('should work in implicit mode `options.includeMode`', function(done) {
-		var spriterPromise = spriteSheetBuildCallbackResultTest({
+	it('should work in implicit mode `options.includeMode`', function() {
+		return compareSpriterResultsToExpected('test/test-css/overall.css', 'test/test-css/expected/overall-include-implicit.css', {
 			'includeMode': 'implicit'
-		});
-
-		mochaPromiseTest(spriterPromise, done, function(result) {
-			expect((Object.keys((result || {}).coordinates) || []).length).to.equal(8);
 		});
 	});
 
 	// Only declarations with explicit `includeMode` true meta data, will be sprited
-	it('should work in explicit mode `options.includeMode`', function(done) {
-		var spriterPromise = spriteSheetBuildCallbackResultTest({
+	it('should work in explicit mode `options.includeMode`', function() {
+		return compareSpriterResultsToExpected('test/test-css/overall.css', 'test/test-css/expected/overall-include-explicit.css', {
 			'includeMode': 'explicit'
-		});
-
-		mochaPromiseTest(spriterPromise, done, function(result) {
-			expect((Object.keys((result || {}).coordinates) || []).length).to.equal(1);
 		});
 	});
 
@@ -104,29 +90,34 @@ describe('gulp-css-spriter', function() {
 		]);
 	});
 
-	it('should call `includeMode.spriteSheetBuildCallback` when done', function(done) {
-		mochaPromiseTest(spriteSheetBuildCallbackResultTest({}), done, function(result) {
-			// Make sure that callback passes in all of the properties we expect
-			expect(result).to.have.property('image');
-			expect(result).to.have.property('coordinates');
-			expect(result).to.have.property('properties');
+	it('should call `includeMode.spriteSheetBuildCallback` when done', function() {
+		return spriteSheetBuildCallbackResultTest({}).then(function(result) {
+			return Promise.all([
+				expect(result).to.have.property('image'),
+				expect(result).to.have.property('coordinates'),
+				expect(result).to.have.property('properties')
+			]);
 		});
 	});
 
-	it('should pass options through to spritesmith using `options.spritesmithOptions`', function(done) {
+	it('should pass options through to spritesmith using `options.spritesmithOptions`', function() {
 		// We make sure the spritesmith options were passed by using opposite-style stacking algorithms
 		// and then comparing the width/height of both
 		var testDifferentStackingPromise = Promise.all([
 			buildCallbackWithAlgorithmPromise('top-down'),
 			buildCallbackWithAlgorithmPromise('left-right')
 		]);
-		mochaPromiseTest(testDifferentStackingPromise, done, function(res) {
+		
+		return testDifferentStackingPromise.then(function(res) {
 			var verticalStackingData = res[0];
 			var horizontalStackingData = res[1];
 
 			// Make sure the two proportions are different
-			expect(verticalStackingData.properties.height).to.be.above(horizontalStackingData.properties.height);
-			expect(horizontalStackingData.properties.width).to.be.above(verticalStackingData.properties.width);
+			return Promise.all([
+				expect(verticalStackingData.properties.height).to.be.above(horizontalStackingData.properties.height),
+				expect(horizontalStackingData.properties.width).to.be.above(verticalStackingData.properties.width)
+			]);
+			
 		});
 
 		function buildCallbackWithAlgorithmPromise(algorithm) {
@@ -211,6 +202,19 @@ describe('gulp-css-spriter', function() {
 	}
 
 
+	function compareSpriterResultsToExpected(actualPath, expectedPath, options) {
+		options = options || {};
+
+		var spriterPromise = spriterTest(options, actualPath).then(function(result) {
+			return String(result.contents);
+		});
+
+		return readFile(expectedPath).then(function(expectedResult) {
+			return expect(spriterPromise).to.eventually.equal(String(expectedResult));
+		});
+	}
+
+
 });
 
 
@@ -218,29 +222,29 @@ describe('gulp-css-spriter', function() {
 
 describe('lib/getBackgroundImageDeclarations(...)', function() {
 	
-	it('should work with single background declarations', function(done) {
-		testGetBackgroundImageDeclarationsFromFile(done, 'test/test-css/background.css', 2);
+	it('should work with single background declarations', function() {
+		return testGetBackgroundImageDeclarationsFromFile('test/test-css/background.css', 2);
 	});
 
-	it('should work with single background-image declarations', function(done) {
-		testGetBackgroundImageDeclarationsFromFile(done, 'test/test-css/background-image.css', 1);
+	it('should work with single background-image declarations', function() {
+		return testGetBackgroundImageDeclarationsFromFile('test/test-css/background-image.css', 1);
 	});
 
-	it('should work with mulitple images defined in background(-image) declarations', function(done) {
-		testGetBackgroundImageDeclarationsFromFile(done, 'test/test-css/multiple-backgrounds.css', 2);
+	it('should work with mulitple images defined in background(-image) declarations', function() {
+		return testGetBackgroundImageDeclarationsFromFile('test/test-css/multiple-backgrounds.css', 2);
 	});
 
-	it('should factor in the `include` meta data', function(done) {
-		testGetBackgroundImageDeclarationsFromFile(done, 'test/test-css/meta-include.css', 1);
+	it('should factor in the `include` meta data', function() {
+		return testGetBackgroundImageDeclarationsFromFile('test/test-css/meta-include.css', 1);
 	});
 
-	it('should work with minified css', function(done) {
-		testGetBackgroundImageDeclarationsFromFile(done, 'test/test-css/background.min.css', 2);
+	it('should work with minified css', function() {
+		return testGetBackgroundImageDeclarationsFromFile('test/test-css/background.min.css', 2);
 	});
 
 
-	function testGetBackgroundImageDeclarationsFromFile(done, filePath, numExpectedDeclarations) {
-		mochaPromiseTest(readFile(filePath), done, function(contents) {
+	function testGetBackgroundImageDeclarationsFromFile(filePath, numExpectedDeclarations) {
+		return readFile(filePath).then(function(contents) {
 			contents = String(contents);
 
 			var styles = css.parse(contents, {
@@ -248,7 +252,7 @@ describe('lib/getBackgroundImageDeclarations(...)', function() {
 			});
 			var imageDeclarations = getBackgroundImageDeclarations(styles);
 	
-			expect((imageDeclarations || []).length).to.equal(numExpectedDeclarations);
+			return expect((imageDeclarations || []).length).to.equal(numExpectedDeclarations);
 		});
 	}
 });
@@ -256,21 +260,90 @@ describe('lib/getBackgroundImageDeclarations(...)', function() {
 
 
 
-
-// Boilerplate for running a test with a async promise
-function mochaPromiseTest(promise, done, cb) {
-	promise.then(function() {
-		try {
-			if(cb) {
-				cb.apply(null, arguments);
-			}
-			done();
-		}
-		catch(err) {
-			done(err);
-		}
-
-	}, function(err) {
-		done(err);
-	});
-}
+describe('lib/transformMap(...)', function() {
+    var testArray;
+    
+    beforeEach(function() {
+       testArray = [1, 2, 3];
+    });
+    
+    it('should transform value with bare value', function() {
+        var result = transformMap(testArray, function(el) {
+            if(el == 2) {
+                return 2.1;
+            }
+        });
+        expect(result).to.deep.equal([1, 2.1, 3]);
+    });
+    
+    it('should transform value with value property', function() {
+        var result = transformMap(testArray, function(el) {
+            if(el == 2) {
+                return {
+                    value: 2.1
+                };
+            }
+        });
+        expect(result).to.deep.equal([1, 2.1, 3]);
+    });
+    
+    it('should insert with bare value', function() {
+        var result = transformMap(testArray, function(el) {
+            if(el == 2) {
+                return {
+                    insertElements: 2.5
+                };
+            }
+        });
+        expect(result).to.deep.equal([1, 2, 2.5, 3]);
+    });
+    
+    it('should insert with array', function() {
+        var result = transformMap(testArray, function(el) {
+            if(el == 2) {
+                return {
+                    insertElements: [2.5, 2.8]
+                };
+            }
+        });
+        expect(result).to.deep.equal([1, 2, 2.5, 2.8, 3]);
+    });
+    
+    it('should append bare value', function() {
+        var result = transformMap(testArray, function(el) {
+            if(el == 2) {
+                return {
+                    appendElements: 4
+                };
+            }
+        });
+        expect(result).to.deep.equal([1, 2, 3, 4]);
+    });
+    
+     it('should append with array', function() {
+        var result = transformMap(testArray, function(el) {
+            if(el == 2) {
+                return {
+                    appendElements: [4, 5]
+                };
+            }
+        });
+        expect(result).to.deep.equal([1, 2, 3, 4, 5]);
+    });
+    
+    it('should iterate over the "extra" added elements', function() {
+        var iterateResult = [];
+        var result = transformMap(testArray, function(el) {
+            iterateResult.push(el);
+            
+            if(el == 2) {
+                return {
+                    insertElements: [2.5, 2.8],
+                    appendElements: [4, 5]
+                };
+            }
+        });
+        
+        expect(iterateResult).to.deep.equal([1, 2, 2.5, 2.8, 3, 4, 5]);
+    });
+});

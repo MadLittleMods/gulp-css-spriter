@@ -12,18 +12,18 @@ var Promise = require('bluebird');
 var outputFile = Promise.promisify(fs.outputFile);
 var stat = Promise.promisify(fs.stat);
 
-var through = require('through2'); // https://www.npmjs.org/package/through2
-var extend = require('extend'); // https://www.npmjs.org/package/extend
-var gutil = require('gulp-util'); // https://www.npmjs.org/package/gulp-util
+var through = require('through2');
+var extend = require('extend')
+var gutil = require('gulp-util');
 
-var css = require('css'); // https://www.npmjs.com/package/css
-var spritesmith = require('spritesmith'); // https://www.npmjs.com/package/spritesmith
+var css = require('css');
+var spritesmith = require('spritesmith');
 var spritesmithBuild = Promise.promisify(spritesmith);
 
 
 var spriterUtil = require('./lib/spriter-util');
 var getBackgroundImageDeclarations = require('./lib/get-background-image-declarations');
-var transformChunksWithSpriteSheetData = require('./lib/transform-chunks-with-sprite-sheet-data');
+var transformFileWithSpriteSheetData = require('./lib/transform-file-with-sprite-sheet-data');
 
 
 
@@ -56,14 +56,18 @@ var spriter = function(options) {
 		'shouldVerifyImagesExist': true,
 		// Any option you pass in here, will be passed through to spritesmith
 		// https://www.npmjs.com/package/spritesmith#-spritesmith-params-callback-
-		'spritesmithOptions': {}
+		'spritesmithOptions': {},
+		// Used to format output CSS
+		// You should be using a separate beautifier plugin
+		'outputIndent': '\t'
 	};
 
 	var settings = extend({}, defaults, options);
 
-	// This is where we keep track of the declarations for each chunk and 
-	// info on the chunk itself
-	var chunkDataList = [];
+	// Keep track of all the chunks that come in so that we can re-emit in the flush
+	var chunkList = [];
+	// We use an object for imageMap so we don't get any duplicates
+	var imageMap = {};
 	// Check to make sure all of the images exist(`options.shouldVerifyImagesExist`) before trying to sprite them
 	var imagePromiseArray = [];
 
@@ -84,34 +88,51 @@ var spriter = function(options) {
 		else if (chunk.isBuffer()) {
 			var contents = String(chunk.contents);
 
-			var styles = css.parse(contents, {
-				'silent': settings.silent
-			});
+			var styles;
+			try {
+				styles = css.parse(contents, {
+					'silent': settings.silent,
+					'source': chunk.path
+				});
+			}
+			catch(err) {
+				err.message = 'Something went wrong when parsing the CSS: ' + err.message;
+				self.emit('log', err.message);
 
+				// Emit an error if necessary
+				if(!settings.silent) {
+					self.emit('error', err);
+				}
+			}
 			
+			// Gather a list of all of the image declarations
 			var chunkBackgroundImageDeclarations = getBackgroundImageDeclarations(styles, settings.includeMode);
 
 
-			// Get a list of all of the images
-			// We use an object for imageMap so we don't get any duplicates
-			var imageMap = {};
+			// Go through each declaration and gather the image paths
+			// We find the new images that we found in this chunk verify they exist below
+			//		We use an object so we don't get any duplicates
+			var newImagesfFromChunkMap = {};
 			var backgroundURLMatchAllRegex = new RegExp(spriterUtil.backgroundURLRegex.source, "gi");
 			chunkBackgroundImageDeclarations.forEach(function(declaration) {
-				var backgroundImageMatch;
-				while((backgroundImageMatch = backgroundURLMatchAllRegex.exec(declaration.value)) != null) {
-					// javascript RegExp has a bug when the match has length 0
-					if (backgroundImageMatch.index === backgroundURLMatchAllRegex.lastIndex) {
-						// Avoid infinite recursion
-						backgroundURLMatchAllRegex.lastIndex += 1;
+
+				// Match each background image in the declaration (there could be multiple background images per value)
+				spriterUtil.matchBackgroundImages(declaration.value, function(imagePath) {
+					imagePath = path.join(path.dirname(chunk.path), imagePath);
+
+					// If not already in the overall list of images collected
+					// Add to the queue/list of images to be verified
+					if(!imageMap[imagePath]) {
+						newImagesfFromChunkMap[imagePath] = true;
 					}
-					// the match variable is an array that contains the matching groups
-					var imagePath = path.join(path.dirname(chunk.path), backgroundImageMatch[2]);
+
+					// Add it to the main overall list to keep track
 					imageMap[imagePath] = true;
-				}
+				});
 			});
 
-			// Add to the queue where we filter out any images that do not exist
-			Object.keys(imageMap).forEach(function(imagePath) {
+			// Filter out any images that do not exist depending on `settings.shouldVerifyImagesExist`
+			Object.keys(newImagesfFromChunkMap).forEach(function(imagePath) {
 				var filePromise;
 				if(settings.shouldVerifyImagesExist) {
 					filePromise = stat(imagePath).then(function() {
@@ -127,10 +148,10 @@ var spriter = function(options) {
 					});
 				}
 				else {
-					filePromise = new Promise(function(resolve, reject) {
-						resolve({
-							path: imagePath
-						});
+					// If they don't want us to verify it exists, just pass it on with a undefined `doesExist` property
+					filePromise = Promise.resolve({
+						doesExist: undefined,
+						path: imagePath
 					});
 				}
 
@@ -140,10 +161,7 @@ var spriter = function(options) {
 
 			// Keep track of each chunk and what declarations go with it
 			// Because the positions/line numbers pertain to that chunk only
-			chunkDataList.push({
-				'vinylFile': chunk,
-				'backgroundImageDeclarations': chunkBackgroundImageDeclarations
-			});
+			chunkList.push(chunk);
 
 		}
 
@@ -156,16 +174,18 @@ var spriter = function(options) {
 		//console.log('flush');
 		var self = this;
 
-		// Update the image list when all of the async checks have finished
-		var imagesVerifiedPromise = Promise.all(imagePromiseArray).then(function(res) {
+		// Create an verified image list when all of the async checks have finished
+		var imagesVerifiedPromise = Promise.settle(imagePromiseArray).then(function(results) {
 			var imageList = [];
-			res.forEach(function(imageInfo) {
+			Array.prototype.forEach.call(results, function(result) {
+				imageInfo = result.value();
+
 				if(imageInfo.doesExist === true || imageInfo.doesExist === undefined) {
 					imageList.push(imageInfo.path);
 				}
 				else {
 					// Tell them that we could not find the image
-					var logMessage = 'Image could not be found:' + imageInfo.path;
+					var logMessage = 'Image could not be found: ' + imageInfo.path;
 					self.emit('log', logMessage);
 
 					// Emit an error if necessary
@@ -192,34 +212,48 @@ var spriter = function(options) {
 				var whenImageDealtWithPromise = new Promise(function(resolve, reject) {
 					// Save out the spritesheet image
 					if(settings.spriteSheet) {
-						outputFile(settings.spriteSheet, result.image, 'binary').then(function(err) {
-							if(err) {
-								err.message = 'Spritesheet failed to save:\n' + err.message;
-								self.emit('error', new gutil.PluginError(PLUGIN_NAME, err));
-							} else {
-								//console.log("The file was saved!");
+						outputFile(settings.spriteSheet, result.image, 'binary').then(function() {
+							
+							//console.log("The file was saved!");
 
-								// Push all of the chunks back on the pipe
-								var transformedChunkDataList = transformChunksWithSpriteSheetData(chunkDataList, result.coordinates, settings.pathToSpriteSheetFromCSS);
-								transformedChunkDataList.forEach(function(chunkData) {
-									var transformedChunk = chunkData.vinylFile;
+							// Push all of the chunks back on the pipe
+							chunkList.forEach(function(chunk) {
 
-									// Attach the spritesheet in case someone wants to use it down the pipe
-									transformedChunk.spritesheet = result.image;
+								var transformedChunk = chunk.clone();
 
-									self.push(transformedChunk);
-								});
+								try {
+									transformedChunk = transformFileWithSpriteSheetData(transformedChunk, result.coordinates, settings.pathToSpriteSheetFromCSS, settings.includeMode, settings.silent, settings.outputIndent);
+								}
+								catch(err) {
+									err.message = 'Something went wrong when parsing the CSS: ' + err.message;
+									self.emit('log', err.message);
 
+									// Emit an error if necessary
+									if(!settings.silent) {
+										self.emit('error', err);
+									}
 
-								// Call a callback from the settings the user can hook onto
-								if(settings.spriteSheetBuildCallback) {
-									settings.spriteSheetBuildCallback(err, result);
+									reject(err);
 								}
 
+
+								// Attach the spritesheet in case someone wants to use it down the pipe
+								transformedChunk.spritesheet = result.image;
+
+								// Push it back on the main pipe
+								self.push(transformedChunk);
+							});
+
+
+							// Call a callback from the settings the user can hook onto
+							if(settings.spriteSheetBuildCallback) {
+								settings.spriteSheetBuildCallback(null, result);
 							}
 
-						}).done(function() {
-							resolve();
+
+						}, function() {
+							settings.spriteSheetBuildCallback(err, null);
+							reject(err);
 						});
 					}
 					else {
@@ -227,7 +261,7 @@ var spriter = function(options) {
 					}
 				});
 
-				whenImageDealtWithPromise.done(function() {
+				whenImageDealtWithPromise.settle(function() {
 					// "call callback when the flush operation is complete."
 					cb();
 				});

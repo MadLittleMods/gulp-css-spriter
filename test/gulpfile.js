@@ -8,6 +8,7 @@ var spriter = require('../');
 
 gulp.task('sprite', function() {
 
+	// './test-css/minimal-for-bare-testing.css'
 	return gulp.src('./test-css/overall.css')
 		.pipe(spriter({
 			'includeMode': 'implicit',

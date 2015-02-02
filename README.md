@@ -8,7 +8,7 @@ You can easily exclude/include certain background image declarations using meta 
 
 # Install
 
-### Latest Version: 0.3.0
+### Latest Version: 0.3.2
 
 `npm install gulp-css-spriter`
 
@@ -95,6 +95,8 @@ gulp.task('css', function() {
  	 	 - Default: true
  	 - `spritesmithOptions`: object - Any option you pass in here, will be passed through to spritesmith. [See spritesmith options documenation](https://www.npmjs.com/package/spritesmith#-spritesmith-params-callback-)
  	 	 - Default: {}
+ 	 - `outputIndent`: bool - Used to format output CSS. You should be using a separate beautifier plugin. The reason the output code is reformatted is because it is easier to "parse->stringify" than "replace in place".
+ 	 	 - Default: '\t'
 
 
 # What we emit
