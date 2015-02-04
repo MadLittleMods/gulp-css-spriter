@@ -245,13 +245,13 @@ var spriter = function(options) {
 							});
 
 
-						}, function() {
+						}).catch(function(err) {
 							settings.spriteSheetBuildCallback(err, null);
 							reject(err);
 						});
 
 
-						spriteSheetSavedPromise.finally(function() {
+						spriteSheetSavedPromise.then(function() {
 
 							// Call a callback from the settings the user can hook onto
 							if(settings.spriteSheetBuildCallback) {

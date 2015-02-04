@@ -2,6 +2,7 @@
 
 // Include gulp
 var gulp = require('gulp');
+var es = require('event-stream');
 
 var spriter = require('../');
 
@@ -14,6 +15,9 @@ gulp.task('sprite', function() {
 			'includeMode': 'implicit',
 			'spriteSheet': './dist/images/spritesheet.png',
 			'pathToSpriteSheetFromCSS': '../images/spritesheet.png'
+		}))
+		.pipe(es.wait(function(err, body) {
+			console.log(arguments);
 		}));
 });
 
