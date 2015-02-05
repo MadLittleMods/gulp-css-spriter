@@ -2,35 +2,35 @@
 	width: 120px;
 	height: 100px;
 	background: url('spritesheet.png');
-	background-position: -300px -0px;
+	background-position: -0px -308px;
 }
 
 .aenean-double-quotes {
 	width: 120px;
 	height: 100px;
 	background: url("spritesheet.png");
-	background-position: -300px -0px;
+	background-position: -0px -308px;
 }
 
 .jpg {
 	width: 100px;
 	height: 160px;
 	background: url('spritesheet.png');
-	background-position: -200px -0px;
+	background-position: -0px -408px;
 }
 
 .gif {
 	width: 100px;
 	height: 160px;
 	background: url('spritesheet.png');
-	background-position: -260px -270px;
+	background-position: -0px -0px;
 }
 
 .massa {
 	width: 120px;
 	height: 100px;
 	background: #ffff00 url('spritesheet.png');
-	background-position: -300px -100px;
+	background-position: -0px -100px;
 }
 
 .not-going-to-be-found {
@@ -50,7 +50,7 @@
 	width: 64px;
 	height: 64px;
 	background-image: url('spritesheet.png');
-	background-position: -300px -164px;
+	background-position: -0px -164px;
 }
 
 .qwerqwer {
@@ -62,7 +62,7 @@
 	width: 300px;
 	height: 80px;
 	background: url('spritesheet.png'), url('spritesheet.png');
-	background-position: -364px -100px, -0px -270px;
+	background-position: -0px -50px, -0px -228px;
 }
 
 .meta-include-false {
@@ -77,7 +77,7 @@
 	height: 64px;
 	/* @meta {"spritesheet": {"include": true}} */
 	background-image: url('spritesheet.png');
-	background-position: -0px -0px;
+	background-position: -0px -568px;
 }
 
 .external-image {

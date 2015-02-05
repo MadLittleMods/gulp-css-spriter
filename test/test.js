@@ -27,7 +27,7 @@ var transformMap = require('../lib/transform-map');
 
 
 
-
+// We use 'algorithm': 'top-down' because it easier to have a consistent packing so the expected doesn't have to be updated
 describe('gulp-css-spriter', function() {
 	it('should emit a buffer', function() {
 		var spriterPromise = spriterTest({}).then(function(result) {
@@ -38,28 +38,46 @@ describe('gulp-css-spriter', function() {
 	});
 
 	it('should work with minified css', function() {
-		return compareSpriterResultsToExpected('test/test-css/background.min.css', 'test/test-css/expected/background.min.css');
+		return compareSpriterResultsToExpected('test/test-css/background.min.css', 'test/test-css/expected/background.min.css', {
+			'spritesmithOptions': {
+				'algorithm': 'top-down'
+			}
+		});
 	});
 
 	it('should not try to sprite external images', function() {
-		return compareSpriterResultsToExpected('test/test-css/external-image.css', 'test/test-css/expected/external-image.css');
+		return compareSpriterResultsToExpected('test/test-css/external-image.css', 'test/test-css/expected/external-image.css', {
+			'spritesmithOptions': {
+				'algorithm': 'top-down'
+			}
+		});
 	});
 
 	it('should sprite properly when the same image source is used in multiple declarations. And one of the declarations is excluded via meta data', function() {
-		return compareSpriterResultsToExpected('test/test-css/multiple-declarations-same-image.css', 'test/test-css/expected/multiple-declarations-same-image.css');
+		return compareSpriterResultsToExpected('test/test-css/multiple-declarations-same-image.css', 'test/test-css/expected/multiple-declarations-same-image.css', {
+			'spritesmithOptions': {
+				'algorithm': 'top-down'
+			}
+		});
 	});
 
 	// All declarations will be included except those with explcit `includeMode` false meta data
 	it('should work in implicit mode `options.includeMode`', function() {
 		return compareSpriterResultsToExpected('test/test-css/overall.css', 'test/test-css/expected/overall-include-implicit.css', {
-			'includeMode': 'implicit'
+			'includeMode': 'implicit',
+			'spritesmithOptions': {
+				'algorithm': 'top-down'
+			}
 		});
 	});
 
 	// Only declarations with explicit `includeMode` true meta data, will be sprited
 	it('should work in explicit mode `options.includeMode`', function() {
 		return compareSpriterResultsToExpected('test/test-css/overall.css', 'test/test-css/expected/overall-include-explicit.css', {
-			'includeMode': 'explicit'
+			'includeMode': 'explicit',
+			'spritesmithOptions': {
+				'algorithm': 'top-down'
+			}
 		});
 	});
 
@@ -206,6 +224,7 @@ describe('gulp-css-spriter', function() {
 		options = options || {};
 
 		var spriterPromise = spriterTest(options, actualPath).then(function(result) {
+			console.log(String(result.contents));
 			return String(result.contents);
 		});
 

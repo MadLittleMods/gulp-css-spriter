@@ -2,14 +2,14 @@
 	width: 120px;
 	height: 100px;
 	background: url(spritesheet.png);
-	background-position: -0px -0px;
+	background-position: -0px -64px;
 }
 
 .massa {
 	width: 120px;
 	height: 100px;
 	background: url(spritesheet.png) #ff0;
-	background-position: -120px -0px;
+	background-position: -0px -0px;
 }
 
 .loremdummy {
