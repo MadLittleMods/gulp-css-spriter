@@ -1,4 +1,4 @@
-[![npm version](https://badge.fury.io/js/gulp-css-spriter.svg)](http://badge.fury.io/js/gulp-css-spriter)
+[![npm version](https://badge.fury.io/js/gulp-css-spriter.svg)](http://badge.fury.io/js/gulp-css-spriter) [![Build Status](https://travis-ci.org/MadLittleMods/gulp-css-spriter.svg?branch=master)](https://travis-ci.org/MadLittleMods/gulp-css-spriter)
 
 # gulp-css-spriter
 
