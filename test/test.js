@@ -61,6 +61,16 @@ describe('gulp-css-spriter', function() {
 		});
 	});
 
+
+	// Declarations in keyframes will be sprited
+	it('should work with css animation keyframes', function() {
+		return compareSpriterResultsToExpected('test/test-css/keyframes.css', 'test/test-css/expected/keyframes.css', {
+			'spritesmithOptions': {
+				'algorithm': 'top-down'
+			}
+		});
+	});
+
 	// All declarations will be included except those with explcit `includeMode` false meta data
 	it('should work in implicit mode `options.includeMode`', function() {
 		return compareSpriterResultsToExpected('test/test-css/overall.css', 'test/test-css/expected/overall-include-implicit.css', {
@@ -261,6 +271,9 @@ describe('lib/getBackgroundImageDeclarations(...)', function() {
 		return testGetBackgroundImageDeclarationsFromFile('test/test-css/background.min.css', 2);
 	});
 
+	it('should work with single background declarations in keyframes', function() {
+		return testGetBackgroundImageDeclarationsFromFile('test/test-css/keyframes.css', 4);
+	});
 
 	function testGetBackgroundImageDeclarationsFromFile(filePath, numExpectedDeclarations) {
 		return readFile(filePath).then(function(contents) {
