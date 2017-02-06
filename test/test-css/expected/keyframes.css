@@ -1,0 +1,36 @@
+.aenean {
+	width: 120px;
+	height: 100px;
+	background: url('spritesheet.png');
+	background-position: -0px -144px;
+}
+
+.massa {
+	width: 120px;
+	height: 100px;
+	background: #ffff00 url('spritesheet.png');
+	background-position: -0px -0px;
+}
+
+.loremdummy {
+	overflow: hidden;
+	width: 200px;
+	width: 400px;
+	background: #cccccc;
+}
+
+.animation {
+	animation: keyframes 1s;
+}
+
+@keyframes keyframes {
+	0% {
+		background: url('spritesheet.png');
+		background-position: -0px -244px;
+	}
+
+	100% {
+		background: url('spritesheet.png');
+		background-position: -0px -64px;
+	}
+}
