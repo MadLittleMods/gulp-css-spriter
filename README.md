@@ -8,8 +8,6 @@ You can easily exclude/include certain background image declarations using meta 
 
 # Install
 
-### Latest Version: 0.3.4
-
 ```
 npm install gulp-css-spriter
 ```
